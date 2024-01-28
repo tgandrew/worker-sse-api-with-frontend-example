@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI SSE Interaction Page</title>
+    <script>
+        // Function to get message from the root endpoint
+        async function getHelloWorld() {
+            const response = await fetch('http://127.0.0.1:8080/');
+            const data = await response.json();
+            document.getElementById('helloWorld').innerText = data.hello;
+        }
+
+        async function initiateQuery() {
+            const eventSource = new EventSource(`http://127.0.0.1:8080/query?stream=true`);
+            eventSource.addEventListener("update", function(event) {
+                document.getElementById('sseMessages').innerText += event.data + '\n';
+            });
+            eventSource.addEventListener("end", function(event) {
+                document.getElementById('sseMessages').innerText += event.data + '\n';
+            });
+        }
+
+    </script>
+</head>
+<body onload="getHelloWorld()">
+    <h1>Interaction with FastAPI Backend</h1>
+    <div>
+        <h2>Root Endpoint:</h2>
+        <p id="helloWorld">Loading...</p>
+    </div>
+    <div>
+        <h2>Query Endpoint:</h2>
+        <button onclick="initiateQuery()">Initiate Query</button>
+        <p id="queryResult"></p>
+    </div>
+    <div>
+        <h2>Server-Sent Events (SSE):</h2>
+        <pre id="sseMessages">Waiting for messages...</pre>
+    </div>
+</body>
+</html>

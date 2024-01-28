@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "worker-sse-api-with-frontend-example"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "worker_sse_api_with_frontend_example"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+rq = "^1.15.1"
+redis = "^5.0.1"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+sse-starlette = "^2.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

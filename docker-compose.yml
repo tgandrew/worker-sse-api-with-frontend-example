@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  my_redis:
+    image: redis:latest
+  
+  my_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - my_redis
+    ports:
+      - 8080:8080
+    command: uvicorn api:app --host 0.0.0.0 --port 8080 --reload
+    volumes:
+      - ./:/workspace
+
+  my_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - my_redis
+    volumes:
+      - ./:/workspace
+    command: rq worker --url redis://my_redis my_queue
+
