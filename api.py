@@ -41,6 +41,6 @@ async def query(request: Request, stream: bool = False):
 
 
 @app.get("/stream")
-async def message_stream(id: str):
-    event_generator = status_event_generator(id)
+async def message_stream(request_id: str):
+    event_generator = status_event_generator(request_id)
     return EventSourceResponse(event_generator)

@@ -1,31 +1,43 @@
 import asyncio
-import logging
+import time
 
 from redis.asyncio import Redis
 
-r = Redis(host="my_redis")
+r = Redis(host="my_redis", decode_responses=True)
 
-logger = logging.getLogger()
+async def status_event_generator(request_id):
+    last_id = '0'
+    last_time = time.time()
+    looping = True
+    while looping:
+        print('here')
+        messages = await r.xread({request_id: last_id})
 
-status_stream_delay = 5  # second
-status_stream_retry_timeout = 30000  # milisecond
-
-
-async def status_event_generator(id):
-    async with r.pubsub() as pubsub:
-        await pubsub.subscribe(id)
-        while True:
-            message = await pubsub.get_message(ignore_subscribe_messages=True)
-            if message is not None:
-                msg = message['data']
-                if msg == "STOP":
+        if (time.time() - last_time) > 60:
+            looping = False
+            yield {
+                "event": "timeout",
+                "data" : "test"
+            }
+            break
+        
+        for stream_id, data in messages:
+            for msg_id, packet in data:               
+                if packet['msg'] == "STOP":
+                    looping = False
                     yield {
                         "event": "end",
                         "data" : "test"
                     }
                     break
+
+                print(f"Received message {packet} with ID {msg_id} from {stream_id}")
                 yield {
                     "event": "update",
-                    "retry": status_stream_retry_timeout,
-                    "data": msg
+                    "retry": 1000,
+                    "data": packet['msg']
                 } 
+                last_id = msg_id
+                last_time = time.time()
+
+        await asyncio.sleep(1)

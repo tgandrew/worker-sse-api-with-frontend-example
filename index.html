@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FastAPI SSE Interaction Page</title>
     <script>
-        // Function to get message from the root endpoint
         async function getHelloWorld() {
             const response = await fetch('http://127.0.0.1:8080/');
             const data = await response.json();
@@ -19,6 +18,7 @@
             });
             eventSource.addEventListener("end", function(event) {
                 document.getElementById('sseMessages').innerText += event.data + '\n';
+                eventSource.close()
             });
         }
 

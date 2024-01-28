@@ -6,11 +6,11 @@ r = get_current_connection()
 
 def query(question: str):
     job = get_current_job()
-    r.publish(job.id, f"Starting to process question: {question}")
+    r.xadd(job.id, {"msg": f"Starting to process question: {question}"})
     for i in range(10):
         time.sleep(1)
-        r.publish(job.id, f"Sleep {i}")
+        r.xadd(job.id, {"msg": f"Sleep {i}"})
         print(f"Sleep {i}")
-    r.publish(job.id, "STOP")
+    r.xadd(job.id, {"msg": "STOP"})
     print("Finished")
     return {'task': 'complete'}
